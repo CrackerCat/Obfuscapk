@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 random_seed = 42
 random.seed(random_seed)
 
-
 ##########################################################################################
 #                                 Common regex patterns.                                 #
 ##########################################################################################
@@ -69,6 +68,7 @@ invoke_pattern = re.compile(r'\s+(?P<invoke_type>invoke-\S+)\s'
 # <spaces> const-string <register>, "<string>"  # This also matches const-string/jumbo
 const_string_pattern = re.compile(r'\s+const-string(/jumbo)?\s(?P<register>[vp0-9]+),\s'
                                   r'"(?P<string>.+)"', re.UNICODE)
+
 
 ##########################################################################################
 
@@ -176,14 +176,20 @@ def get_smali_method_overload() -> str:
                                            'resources', 'smali', 'overloaded_method_body.smali'))
 
 
-def get_decrypt_asset_smali_code() -> str:
-    return get_text_from_file(os.path.join(os.path.dirname(__file__),
+def get_decrypt_asset_smali_code(encryption_secret: str) -> str:
+    text = get_text_from_file(os.path.join(os.path.dirname(__file__),
                                            'resources', 'smali', 'DecryptAsset.smali'))
+    return replace_default_secret_key(text, encryption_secret)
 
 
-def get_decrypt_string_smali_code() -> str:
-    return get_text_from_file(os.path.join(os.path.dirname(__file__),
+def get_decrypt_string_smali_code(encryption_secret: str) -> str:
+    text = get_text_from_file(os.path.join(os.path.dirname(__file__),
                                            'resources', 'smali', 'DecryptString.smali'))
+    return replace_default_secret_key(text, encryption_secret)
+
+
+def replace_default_secret_key(text: str, encryption_secret: str) -> str:
+    return text.replace('This-key-need-to-be-32-character', encryption_secret)
 
 
 def get_api_reflection_smali_code() -> str:
